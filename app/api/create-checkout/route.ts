@@ -1,6 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 
+// Auto-detect the app URL (works on Vercel and locally)
+function getAppUrl() {
+  if (process.env.NEXT_PUBLIC_APP_URL) {
+    return process.env.NEXT_PUBLIC_APP_URL;
+  }
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+  return 'http://localhost:3000';
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { amount } = await req.json();
@@ -11,6 +22,8 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+
+    const appUrl = getAppUrl();
 
     // Create Stripe checkout session
     const session = await stripe.checkout.sessions.create({
@@ -30,8 +43,8 @@ export async function POST(req: NextRequest) {
         },
       ],
       mode: 'payment',
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/thanks?amount=${amount}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}`,
+      success_url: `${appUrl}/thanks?amount=${amount}`,
+      cancel_url: `${appUrl}`,
       metadata: {
         source: 'shabbat-sparks',
         amount: amount.toString(),
