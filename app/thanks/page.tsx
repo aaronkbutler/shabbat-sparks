@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { updateStreak } from '@/lib/streak';
 
-export default function ThanksPage() {
+function ThanksContent() {
   const searchParams = useSearchParams();
   const [amount, setAmount] = useState<number | null>(null);
   const [impact, setImpact] = useState({
@@ -179,5 +179,13 @@ export default function ThanksPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function ThanksPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <ThanksContent />
+    </Suspense>
   );
 }
